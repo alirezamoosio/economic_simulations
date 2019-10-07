@@ -115,7 +115,8 @@ object Main {
     if (mute)
       Console.setOut(initLog)
 
-    val landlord = new Source(Land, 20, 100000 * 100, s)
+    val landlord = new Source(Land, s.constants("Landlord")("units").round.toInt,
+      s.constants("Landlord")("price").round.toInt, s)
 
     val genderDistr = Gaussian(s.constants("Person")("genderMu"), s.constants("Person")("genderSigma"))
     val people = for (_ <- 1 to s.constants("Person")("number").toInt) yield {
@@ -130,7 +131,7 @@ object Main {
     val oilFields = for (_ <- 1 to s.constants("OilField")("number").toInt) yield new OilField(s)
     val refineries = for (_ <- 1 to s.constants("Refinery")("number").toInt) yield new Refinery(s)
 
-    val sims = farms ++ mills ++ bakeries ++ cattleFarms ++ oilFields ++ refineries ++ people
+    val sims = Seq(landlord) ++ farms ++ mills ++ bakeries ++ cattleFarms ++ oilFields ++ refineries ++ people
 
     s.init(List(
       landlord

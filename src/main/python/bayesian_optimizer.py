@@ -51,7 +51,7 @@ if __name__ == '__main__':
     os.chdir('../../..')  # going to the root of the project
     json_original = 'supplementary/params/params.json'
     json_optimize = "supplementary/params/optimize.json"
-    json_temp = 'supplementary/params/.json'
+    json_temp = 'supplementary/params/temp.json'
     json_result = 'supplementary/params/bo-result.json'
 
     f = open(json_original, "r")
@@ -78,7 +78,9 @@ if __name__ == '__main__':
             **{bonusSal: (0, 1000) for bonusSal in constants[agentType] if "bonussal" in bonusSal.lower()},
             **{salary: (10 ** 4, 10 ** 6) for salary in constants[agentType] if "salary" in salary.lower()},
             **{iters: (0, 20) for iters in constants[agentType] if "iters" in iters.lower()},
-            **{plUnits: (1, 20) for plUnits in constants[agentType] if plUnits in ["required", "consumed", "produced", "time"]}
+            **{plUnits: (1, 20) for plUnits in constants[agentType] if plUnits in ["required", "consumed", "produced", "time"]},
+            **{units: (1, 1000) for units in ["units"] if agentType == "Landlord"},
+            **{price: (10 ** 5, 10 ** 7) for price in ["price"] if agentType == "Landlord"}
         }
         pbounds = {**pbounds, **{("constants-{}-{}".format(agentType, key)): append[key] for key in append}}
     for agentType in variables:

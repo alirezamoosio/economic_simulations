@@ -101,6 +101,10 @@
       "consumed": 10,
       "produced": 9,
       "time": 2
+    },
+    "Landlord": {
+      "units": 20,
+      "price": 100000
     }
   },
   "variables": {

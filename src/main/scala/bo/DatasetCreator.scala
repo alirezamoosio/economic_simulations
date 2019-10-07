@@ -160,6 +160,11 @@ object DatasetCreator {
           "consumed" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "produced" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "time" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble
+        ),
+      "Landlord" ->
+        Map(
+          "units" -> (GLOBAL.rnd.nextInt(999) + 1).toDouble,
+          "price" -> (GLOBAL.rnd.nextDouble() * 9900000 + 100000.0)
         )
     ),
       MutableMap(
