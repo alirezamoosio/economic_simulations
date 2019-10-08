@@ -261,10 +261,9 @@ abstract class Factory(protected val pls: ProductionLineSpec,
       println(this + " demand_fc = " + demand_fc + ", best_pl = " +
         suitable_num_pl + ", currently = " + pl.length);
 
-
+    goal_num_pl = suitable_num_pl;
     if(suitable_num_pl >= 1) {
       println(this + ": First nested simulation starts.");
-      goal_num_pl = suitable_num_pl;
       val old2new1 = shared.run_sim(nestedSimIters);
       val future_self1 = old2new1(this).asInstanceOf[Factory];
       future_self1.stat;
@@ -276,17 +275,18 @@ abstract class Factory(protected val pls: ProductionLineSpec,
       val old2new2 = shared.run_sim(nestedSimIters);
       val future_self2 = old2new2(this).asInstanceOf[Factory];
       future_self2.stat;
-      goal_num_pl += 1;
       println(this + ": Second nested simulation ends.");
 
       def valuation(f: Factory) = f.assets + f.goodwill + f.liabilities;
 
-      if(valuation(future_self1) < valuation(future_self2))
-        println("ONE LESS WOULD BE BETTER");
-      else println(goal_num_pl + " IS A GOOD DECISION!")
+      if(valuation(future_self1) < valuation(future_self2)) {
+        println("ONE LESS WOULD BE BETTER")
+      }
+      else {
+        goal_num_pl += 1
+        println(goal_num_pl + " IS A GOOD DECISION!")
+      }
     }
-
-    goal_num_pl = suitable_num_pl;
   }
 
 
