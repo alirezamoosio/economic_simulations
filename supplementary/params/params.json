@@ -40,7 +40,11 @@
       "maleBonusSalMu": 100.0,
       "maleBonusSalSigma": 10.0,
       "femaleBonusSalMu": 80.0,
-      "femaleBonusSalSigma": 7.0
+      "femaleBonusSalSigma": 7.0,
+      "maleActiveMu": 0.5,
+      "maleActiveSigma": 0.1,
+      "femaleActiveMu": 0.5,
+      "femaleActiveSigma": 0.2
     },
     "Farm": {
       "number": 1,

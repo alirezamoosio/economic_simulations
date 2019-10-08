@@ -76,6 +76,7 @@ if __name__ == '__main__':
             **{enjoyment: (0, 1000) for enjoyment in constants[agentType] if "enjoy" in enjoyment.lower()},
             **{edu: (0, 10) for edu in constants[agentType] if "edu" in edu.lower()},
             **{bonusSal: (0, 1000) for bonusSal in constants[agentType] if "bonussal" in bonusSal.lower()},
+            **{active: (0, 1) for active in constants[agentType] if "active" in active.lower()},
             **{salary: (10 ** 4, 10 ** 6) for salary in constants[agentType] if "salary" in salary.lower()},
             **{iters: (0, 20) for iters in constants[agentType] if "iters" in iters.lower()},
             **{plUnits: (1, 20) for plUnits in constants[agentType] if plUnits in ["required", "consumed", "produced", "time"]},

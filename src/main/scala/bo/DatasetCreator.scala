@@ -93,7 +93,12 @@ object DatasetCreator {
           "maleBonusSalMu" -> GLOBAL.rnd.nextDouble() * 1000,
           "maleBonusSalSigma" -> GLOBAL.rnd.nextDouble() * 1000,
           "femaleBonusSalMu" -> GLOBAL.rnd.nextDouble() * 1000,
-          "femaleBonusSalSigma" -> GLOBAL.rnd.nextDouble() * 1000
+          "femaleBonusSalSigma" -> GLOBAL.rnd.nextDouble() * 1000,
+
+          "maleActiveMu" -> GLOBAL.rnd.nextDouble(),
+          "maleActiveSigma" -> GLOBAL.rnd.nextDouble(),
+          "femaleActiveMu" -> GLOBAL.rnd.nextDouble(),
+          "femaleActiveSigma" -> GLOBAL.rnd.nextDouble()
         ),
       "Farm" ->
         Map(

@@ -26,6 +26,7 @@ class Simulation(val constants: Data, val variables: Data) {
       var distr: Map[String, Gaussian] = Map(
         ("edu", new Gaussian(constants("Person")(gender + "EduMu"), constants("Person")(gender + "EduSigma"))),
         ("bonusSal", new Gaussian(constants("Person")(gender + "BonusSalMu"), constants("Person")(gender + "BonusSalSigma"))),
+        ("active", new Gaussian(constants("Person")(gender + "ActiveMu"), constants("Person")(gender + "ActiveSigma"))),
         ("buy", new Gaussian(constants("Person")("buyMu"), constants("Person")("buySigma"))),
         ("consume", new Gaussian(constants("Person")("consumeMu"), constants("Person")("consumeSigma"))),
         ("capital", new Gaussian(variables("Person")("capitalMu"), variables("Person")("capitalSigma"))),

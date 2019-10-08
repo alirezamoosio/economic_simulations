@@ -121,7 +121,7 @@ object Main {
     val genderDistr = Gaussian(s.constants("Person")("genderMu"), s.constants("Person")("genderSigma"))
     val people = for (_ <- 1 to s.constants("Person")("number").toInt) yield {
       val male = math.max(0, math.min(1, genderDistr.sample())) <= 0.5
-      new Person(s, true, male)
+      new Person(s, male)
     }
 
     val farms = for (_ <- 1 to s.constants("Farm")("number").toInt) yield new Farm(s)
