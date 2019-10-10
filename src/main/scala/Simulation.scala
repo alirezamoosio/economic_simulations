@@ -51,6 +51,7 @@ class Simulation(val constants: Data, val variables: Data) {
           constants(factoryType)("salarySigma"))),
         ("iters", new Gaussian(constants(factoryType)("itersMu"),
           constants(factoryType)("itersSigma"))),
+        ("tactics", new Gaussian(constants(factoryType)("tacticsMu"), constants(factoryType)("tacticsSigma"))),
         ("capital", new Gaussian(variables(factoryType)("capitalMu"),
           variables(factoryType)("capitalSigma"))),
         ("total_value_destroyed", new Gaussian(variables(factoryType)("total_value_destroyedMu"),
@@ -209,12 +210,6 @@ class Simulation(val constants: Data, val variables: Data) {
     */
   def run_sim(it: Int): collection.mutable.Map[SimO, SimO] = {
     val (new_sim, old2new) = this.mycopy;
-
-    // prevent recursive simulation. This is only safe it the simulation
-    // runs for fewer than 1000 iterations!
-    for (s <- new_sim.sims)
-      if (s.isInstanceOf[Factory.Factory])
-        s.asInstanceOf[Factory.Factory].prev_mgmt_action += 1000;
 
     new_sim.run(it);
     old2new

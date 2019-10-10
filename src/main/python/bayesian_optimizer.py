@@ -79,6 +79,7 @@ if __name__ == '__main__':
             **{active: (0, 1) for active in constants[agentType] if "active" in active.lower()},
             **{salary: (10 ** 4, 10 ** 6) for salary in constants[agentType] if "salary" in salary.lower()},
             **{iters: (0, 20) for iters in constants[agentType] if "iters" in iters.lower()},
+            **{tactics: (0, 1) for tactics in constants[agentType] if "tactics" in tactics.lower()},
             **{plUnits: (1, 20) for plUnits in constants[agentType] if plUnits in ["required", "consumed", "produced", "time"]},
             **{units: (1, 1000) for units in ["units"] if agentType == "Landlord"},
             **{price: (10 ** 5, 10 ** 7) for price in ["price"] if agentType == "Landlord"}

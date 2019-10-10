@@ -52,6 +52,8 @@
       "salarySigma": 200.0,
       "itersMu": 10.0,
       "itersSigma": 1.0,
+      "tacticsMu": 0.5,
+      "tacticsSigma": 0.1,
       "required": 1,
       "produced": 10,
       "time": 4
@@ -62,6 +64,8 @@
       "salarySigma": 150.0,
       "itersMu": 9.0,
       "itersSigma": 1.0,
+      "tacticsMu": 0.4,
+      "tacticsSigma": 0.1,
       "consumed": 10,
       "produced": 10,
       "time": 1
@@ -72,6 +76,8 @@
       "salarySigma": 200.0,
       "itersMu": 10.0,
       "itersSigma": 1.0,
+      "tacticsMu": 0.5,
+      "tacticsSigma": 0.1,
       "consumed": 5,
       "produced": 10,
       "time": 1
@@ -82,6 +88,8 @@
       "salarySigma": 200.0,
       "itersMu": 10.0,
       "itersSigma": 1.0,
+      "tacticsMu": 0.5,
+      "tacticsSigma": 0.1,
       "required": 1,
       "produced": 5,
       "time": 6
@@ -92,6 +100,8 @@
       "salarySigma": 200.0,
       "itersMu": 10.0,
       "itersSigma": 1.0,
+      "tacticsMu": 0.5,
+      "tacticsSigma": 0.1,
       "required": 1,
       "produced": 10,
       "time": 1
@@ -102,6 +112,8 @@
       "salarySigma": 200.0,
       "itersMu": 10.0,
       "itersSigma": 1.0,
+      "tacticsMu": 0.5,
+      "tacticsSigma": 0.1,
       "consumed": 10,
       "produced": 9,
       "time": 2

@@ -147,11 +147,11 @@ abstract class Factory(protected val pls: ProductionLineSpec,
 
   var pl : List[ProductionLine] = List()
   private var zombie_cost2 : Double = 0.0 // cost from canceled prod. runs
-  var prev_mgmt_action : Int = 0
   protected var hr : HR = HR(shared, this, math.abs(distr("salary").sample.round.toInt))
   protected var goal_num_pl = 0;
 
   private var nestedSimIters = math.max(0, math.min(20, distr("iters").sample.round.toInt))
+  private var tacticsProbability = distr("tactics").sample
 
 
   // constructor
@@ -169,12 +169,12 @@ abstract class Factory(protected val pls: ProductionLineSpec,
 
     _to.pl = pl.map(_.mycopy(_to));
     _to.zombie_cost2 = zombie_cost2;
-    _to.prev_mgmt_action = prev_mgmt_action;
     _to.hr = new HR(_shared, _to, hr.salary,
        hr.employees.map{case (employee, salary) => (old2new(employee).asInstanceOf[Person], salary)}
     )
     _to.goal_num_pl = goal_num_pl;
     _to.nestedSimIters = nestedSimIters
+    _to.tacticsProbability = tacticsProbability
   }
 
   /** Returns whether everything was sucessfully bought. */
@@ -300,13 +300,7 @@ abstract class Factory(protected val pls: ProductionLineSpec,
 
   override protected def algo = __forever(
     __do {
-      val mgmt_step_size = 6;
-
-      if(prev_mgmt_action + mgmt_step_size < shared.timer)
-      //if(shared.timer % mgmt_step_size == mgmt_step_size - 1)
-      {
-        prev_mgmt_action = shared.timer; // call before tactics to avoid
-          // immediate recursion in nested simulation.
+      if(shared.recursionDepth == 0 && shared.timer > 0 && GLOBAL.rnd.nextDouble() <= tacticsProbability) {
         tactics(); // changes goal_num_pl
       }
 

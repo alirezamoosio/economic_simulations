@@ -107,6 +107,8 @@ object DatasetCreator {
           "salarySigma" -> (GLOBAL.rnd.nextDouble() * 999000 + 10000.0),
           "itersMu" -> GLOBAL.rnd.nextDouble() * 20,
           "itersSigma" -> GLOBAL.rnd.nextDouble() * 20,
+          "tacticsMu" -> GLOBAL.rnd.nextDouble(),
+          "tacticsSigma" -> GLOBAL.rnd.nextDouble(),
           "required" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "produced" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "time" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble
@@ -118,6 +120,8 @@ object DatasetCreator {
           "salarySigma" -> (GLOBAL.rnd.nextDouble() * 999000 + 10000),
           "itersMu" -> GLOBAL.rnd.nextDouble() * 20,
           "itersSigma" -> GLOBAL.rnd.nextDouble() * 20,
+          "tacticsMu" -> GLOBAL.rnd.nextDouble(),
+          "tacticsSigma" -> GLOBAL.rnd.nextDouble(),
           "consumed" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "produced" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "time" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble
@@ -129,6 +133,8 @@ object DatasetCreator {
           "salarySigma" -> (GLOBAL.rnd.nextDouble() * 999000 + 10000.0),
           "itersMu" -> GLOBAL.rnd.nextDouble() * 20,
           "itersSigma" -> GLOBAL.rnd.nextDouble() * 20,
+          "tacticsMu" -> GLOBAL.rnd.nextDouble(),
+          "tacticsSigma" -> GLOBAL.rnd.nextDouble(),
           "consumed" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "produced" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "time" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble
@@ -140,6 +146,8 @@ object DatasetCreator {
           "salarySigma" -> (GLOBAL.rnd.nextDouble() * 999000 + 10000.0),
           "itersMu" -> GLOBAL.rnd.nextDouble() * 20,
           "itersSigma" -> GLOBAL.rnd.nextDouble() * 20,
+          "tacticsMu" -> GLOBAL.rnd.nextDouble(),
+          "tacticsSigma" -> GLOBAL.rnd.nextDouble(),
           "required" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "produced" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "time" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble
@@ -151,6 +159,8 @@ object DatasetCreator {
           "salarySigma" -> (GLOBAL.rnd.nextDouble() * 999000 + 10000.0),
           "itersMu" -> GLOBAL.rnd.nextDouble() * 20,
           "itersSigma" -> GLOBAL.rnd.nextDouble() * 20,
+          "tacticsMu" -> GLOBAL.rnd.nextDouble(),
+          "tacticsSigma" -> GLOBAL.rnd.nextDouble(),
           "required" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "produced" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "time" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble
@@ -162,6 +172,8 @@ object DatasetCreator {
           "salarySigma" -> (GLOBAL.rnd.nextDouble() * 999000 + 10000.0),
           "itersMu" -> GLOBAL.rnd.nextDouble() * 20,
           "itersSigma" -> GLOBAL.rnd.nextDouble() * 20,
+          "tacticsMu" -> GLOBAL.rnd.nextDouble(),
+          "tacticsSigma" -> GLOBAL.rnd.nextDouble(),
           "consumed" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "produced" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble,
           "time" -> (GLOBAL.rnd.nextInt(19) + 1).toDouble
