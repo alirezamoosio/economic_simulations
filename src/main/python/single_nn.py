@@ -5,7 +5,19 @@ import sys
 from keras import Sequential
 from keras.layers import Dense
 from keras.models import load_model
-from sklearn.model_selection import train_test_split
+
+
+def read_datasets(dir):
+    x = pd.read_csv(dir + "global_stat_input.csv")
+    y = pd.read_csv(dir + "global_stat_output.csv")
+
+    x = (x - x.mean()) / x.std()
+    y = (y - y.mean()) / y.std()
+
+    x = x.fillna(1)
+    y = y.fillna(1)
+    return x, y
+
 
 if __name__ == '__main__':
     os.chdir('../../..')  # going to the root of the project
@@ -15,35 +27,20 @@ if __name__ == '__main__':
 
     action = sys.argv[1]
     if action == 'train':
-        x = pd.read_csv("supplementary/data/training/global_stat_input.csv")
-        y = pd.read_csv("supplementary/data/training/global_stat_output.csv")
+        x_train, y_train = read_datasets("supplementary/data/training/")
 
-        x = (x - x.mean()) / x.std()
-        y = (y - y.mean()) / y.std()
-
-        x = x.fillna(1)
-        y = y.fillna(1)
-
-        # x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=2999)
-        x_train, y_train = x, y
         number_of_features = x_train.columns.size
         number_of_outputs = y_train.columns.size
         number_of_layers = 4
         number_of_units = [16, 32, 16, number_of_outputs]
-        # number_of_layers = 1
-        # number_of_units = [number_of_outputs]
-        activations = ['relu', 'tanh', 'tanh', 'linear']
-        # activations = ['linear']
+        activations = ['relu', 'relu', 'relu', 'linear']
 
         model = Sequential()
         for i in range(number_of_layers):
             model.add(Dense(number_of_units[i], activation=activations[i]))
 
-        model.compile(optimizer='nadam', loss='mae', metrics=['mae'])
-
+        model.compile(optimizer='sgd', loss='mse', metrics=['mse', 'mae'])
         model.fit(x_train.to_numpy(), y_train.to_numpy(), epochs=150)
-
-        # print(model.evaluate(x_test.to_numpy(), y_test.to_numpy()))
 
         if len(sys.argv) > 2 and sys.argv[2] == '--save':
             model.save('supplementary/models/single/single_nn.h5')
@@ -51,13 +48,5 @@ if __name__ == '__main__':
     elif action == 'evaluate':
         model = load_model('supplementary/models/single/single_nn.h5')
 
-        x = pd.read_csv("supplementary/data/evaluation/global_stat_input.csv")
-        y = pd.read_csv("supplementary/data/evaluation/global_stat_output.csv")
-
-        x = (x - x.mean()) / x.std()
-        y = (y - y.mean()) / y.std()
-
-        x = x.fillna(1)
-        y = y.fillna(1)
-
-        print(model.evaluate(x.to_numpy(), y.to_numpy()))
+        x_test, y_test = read_datasets("target/data/")
+        print(model.evaluate(x_test.to_numpy(), y_test.to_numpy()))
