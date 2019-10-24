@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 import subprocess
@@ -10,18 +11,25 @@ from env import Agent, Environment
 from math import floor
 
 
-def prepare_environment(config_address, models_address=None):
+def prepare_environment(config_address, data_address, models_address=None):
     """
     loads config and models, creates agents and environment
     """
+    def read_header_from_csv(agent_name):
+        with open(data_address + agent_name + "_x.csv", "r") as f:
+            header = list(csv.reader(f))[0]
+            return header
+
     with open(config_address, 'r') as sim_file:
         jstring = sim_file.read()
     config = json.loads(jstring)
-
-    def _agent_generator(name):
-        return Agent(config[name]['constants'], config[name]['states'], name, config[name]['hyper_parameters'])
-
-    agents_dict = {agent_name: _agent_generator(agent_name) for agent_name in config}
+    input_names = {agent_name: read_header_from_csv(agent_name) for agent_name in config}
+    constants = {agent_name: list(filter(lambda name: name.startswith("const_"), input_names[agent_name]))
+                 for agent_name in input_names}
+    states = {agent_name: list(filter(lambda name: name.startswith("var_"), input_names[agent_name]))
+              for agent_name in input_names}
+    agents_dict = {name: Agent(constants[name], states[name], name, config[name]["hyper_parameters"])
+                  for name in input_names}
 
     env = Environment()
     env.register_agents(*(agents_dict.values()))
@@ -74,7 +82,7 @@ def train_test_split(data_input, data_output, train_ratio):
 
 
 def setup_train_test(config_address, data_address, eval_address=None, model_from_file=None):
-    env, agent_dict = prepare_environment(config_address, model_from_file)
+    env, agent_dict = prepare_environment(config_address, data_address, model_from_file)
     agents = agent_dict.values()
     train_input_address = {agent: data_address + agent.name + '_x.csv' for agent in agents}
     train_output_address = {agent: data_address + agent.name + '_y.csv' for agent in agents}
@@ -120,7 +128,7 @@ def get_aggregator(input_data):
 
 def test_all(env, test_input, test_output, from_train_scale=False):
     env.solo_test(test_input, test_output, from_train_scale)
-    print("group test:", env.group_test(test_input, test_output, get_aggregator(test_input), True))
+    print("group test:", env.group_test(test_input, test_output, get_aggregator(test_input), from_train_scale))
 
 
 def learn_input(env, data_input, data_output, epochs=10 ** 5):
@@ -220,7 +228,7 @@ if __name__ == '__main__':
                 f.close()
         else:
             env, agent_dict, train_input, train_output = setup_train_test(
-                'supplementary/simulation.json', 'target/data/500/', model_from_file='supplementary/models/')
+                'supplementary/simulation.json', 'target/data/', model_from_file='supplementary/models/')
             result_entry = learn_input(env, train_input, train_output, epochs=1000)
             result_entry = add_target(result_entry)
             f = open("supplementary/params/net-result.json", "w")

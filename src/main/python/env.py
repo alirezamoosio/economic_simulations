@@ -174,11 +174,11 @@ class Environment:
             input_names += in_agent.states
         node = Node(agent.name, input_names, agent.states, {
             'features': len(input_names),
-            'number_of_units': agent.hyper_parameters.get('number_of_units') or [64, 64, 64, len(agent.states)],
-            'activations': agent.hyper_parameters.get('activations') or ['relu', 'relu', 'relu', 'linear'],
+            'number_of_units': agent.hyper_parameters.get('number_of_units') or [64, 64, 64],
+            'activations': agent.hyper_parameters.get('activations') or ['relu', 'relu', 'relu'],
             'loss': agent.hyper_parameters.get('loss') or 'mae',
             'optimizer': agent.hyper_parameters.get('optimizer') or 'sgd',
-            'metrics': agent.hyper_parameters.get('metrics') or ['mae']
+            'metrics': agent.hyper_parameters.get('metrics') or ['mae', 'mse']
         })
         return node
 
