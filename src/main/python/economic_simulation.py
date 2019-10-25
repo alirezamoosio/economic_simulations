@@ -1,10 +1,11 @@
 import csv
 import json
-import os
-import subprocess
+import random
 
 import numpy as np
+import os
 import pandas as pd
+import subprocess
 import sys
 from aggregator import GlobalStateAggregator
 from env import Agent, Environment
@@ -171,6 +172,55 @@ def runCmd(cmd):
     return result
 
 
+def train_and_test(train_input, train_output, eval_input, eval_output, agents, env, group=False):
+    env.solo_train(train_input, train_output, training_hyper_params={
+        agent: {'epochs': 30} for agent in agents
+    })
+    test_all(env, eval_input, eval_output)
+    if group:
+        print("group training:")
+        env.group_train(train_input, train_output, get_aggregator(train_input), epochs=100)
+        print()
+    test_all(env, eval_input, eval_output)
+
+
+def k_cross_fold_validation(train_input, train_output, k, n, agents, env):
+    indices = list(range(n))
+    random.seed(19)
+    random.shuffle(indices)
+    train_input = {agent: {
+        type: train_input[agent][type].reindex(index=indices) for type in train_input[agent]
+    } for agent in train_input}
+    train_output = {agent: train_output[agent].reindex(index=indices) for agent in train_output}
+    lower = 0
+    upper = int(n / k)
+    global_columns = ["capital", "total_value_destroyed", "happiness", "valueProduced", "goodwill", "unemploymentRate"]
+    predictions = np.empty(shape=(0, len(global_columns)))
+    for i in range(k):
+        test_fold_input = {agent: {
+            type: train_input[agent][type][lower:upper] for type in train_input[agent]
+        } for agent in train_input}
+        test_fold_output = {agent: train_output[agent][lower:upper] for agent in train_output}
+        train_fold_input = {agent: {
+            type: pd.concat([train_input[agent][type][0:lower],
+                             train_input[agent][type][upper:n]]) for type in train_input[agent]
+        } for agent in train_input}
+        train_fold_output = {agent: pd.concat([train_output[agent][0:lower],
+                                               train_output[agent][upper:n]]) for agent in train_output}
+
+        print("Fold " + str(i + 1))
+        train_and_test(train_fold_input, train_fold_output, test_fold_input, test_fold_output, agents, env, group=True)
+        preds = env.group_predict(test_fold_input, test_fold_output, get_aggregator(test_fold_input), int(n / k))
+        predictions = np.concatenate((predictions, preds), axis=0)
+
+        lower += int(n / k)
+        upper += int(n / k)
+    mae, mse = env.group_error(train_input, train_output, pd.DataFrame(predictions, columns=global_columns), get_aggregator(train_input))
+    print("cross validation errors")
+    print("mae", mae)
+    print("mse", mse)
+
+
 if __name__ == '__main__':
     os.chdir('../../..')  # going to the root of the project
 
@@ -183,20 +233,18 @@ if __name__ == '__main__':
             'supplementary/simulation.json', 'supplementary/data/training/', 'supplementary/data/evaluation/')
         agents = agent_dict.values()
 
-        env.solo_train(train_input, train_output, training_hyper_params={
-            agent: {'epochs': 30} for agent in agents
-        })
-
-        test_all(env, eval_input, eval_output)
-
-        if '--group' in sys.argv:
-            print("group training:")
-            env.group_train(train_input, train_output, get_aggregator(train_input), epochs=100)
-            print()
-
-        test_all(env, eval_input, eval_output)
-        if '--save' in sys.argv:
-            env.save_models("supplementary/models/", train_input)
+        if "-k" in sys.argv:
+            i = sys.argv.index("-k")
+            k = int(sys.argv[i + 1])
+            n = train_input[list(train_input)[0]]["constants"].shape[0]
+            if k < 2 or k > n:
+                print("k has to be between 2 and n")
+                exit(1)
+            k_cross_fold_validation(train_input, train_output, k, n, agents, env)
+        else:
+            train_and_test(train_input, train_output, eval_input, eval_output, agents, env, '--group' in sys.argv)
+            if '--save' in sys.argv:
+                env.save_models("supplementary/models/", train_input)
 
     elif action == 'input-learning':
         def add_target(result_entry, stepSize=50):

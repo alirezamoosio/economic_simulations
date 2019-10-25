@@ -47,6 +47,26 @@ class Graph:
                 last_percent = int(i * 100.0 / epochs)
                 print(f"{last_percent} %, loss {loss_val}")
 
+    def group_predict(self, test_x, aggregator, n_samples):
+        indices = {node: {name: i for i, name in enumerate(test_x[node]["states"].columns.values)} for node in test_x}
+        predict_s = aggregator.aggregate({node: node.output_tensor() for node in self._nodes}, n_samples,
+                                         indices)
+        predictions = self._sess.run(predict_s, feed_dict={
+            node.input_tensor(): self._prepare_node_input(test_x, node) for node in self._nodes
+        })
+        return predictions
+
+    def group_error(self, test_x, test_s):
+        """
+        Measures the mae and mse for two global observations
+        :param test_x: the predicted global observations
+        :param test_s: ground truth global observations
+        :return: mae, mse
+        """
+        mae = tf.losses.absolute_difference(tf.constant(test_s), tf.constant(test_x))
+        mse = tf.losses.mean_squared_error(tf.constant(test_s), tf.constant(test_x))
+        return self._sess.run((mae, mse))
+
     def group_test(self, test_x, test_s, aggregator):
         """Tests the aggregated output produced by the model against ground truth
 
