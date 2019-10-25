@@ -1,10 +1,12 @@
 import os
 
+import keras
+import numpy as np
 import pandas as pd
 import sys
 from keras import Sequential
 from keras.layers import Dense
-from keras.models import load_model
+from sklearn.model_selection import KFold
 
 
 def read_datasets(dir):
@@ -19,6 +21,48 @@ def read_datasets(dir):
     return x, y
 
 
+def evaluate(model):
+    x_test, y_test = read_datasets("supplementary/data/100-20-5/")
+    print(model.evaluate(x_test.to_numpy(), y_test.to_numpy()))
+
+
+def k_cross_fold_validation(x_train, number_of_outputs, number_of_layers, number_of_units, activations):
+    x_train = x_train.to_numpy()
+    i = sys.argv.index("-k")
+    k = int(sys.argv[i + 1])
+    n = x_train.shape[0]
+    if k < 2 or k > n:
+        print("k has to be between 2 and n")
+        exit(1)
+
+    predictions = np.empty(shape=(0, number_of_outputs))
+    fold_counter = 1
+    for train_index, test_index in KFold(k).split(x_train):
+        print("Fold", fold_counter)
+        x_train_fold, x_test_fold = x_train[train_index], x_train[test_index]
+        y_train_fold = x_train[train_index]
+
+        model = build_model(number_of_layers, number_of_units, activations)
+        model.fit(x_train_fold, y_train_fold, epochs=150)
+
+        preds = model.predict(x_test_fold)
+        predictions = np.concatenate((predictions, preds), axis=0)
+        fold_counter += 1
+    mae = keras.metrics.mean_absolute_error(x_train, predictions)
+    mse = keras.metrics.mean_squared_error(x_train, predictions)
+    print("cross validation errors")
+    print("mae", keras.backend.eval(mae).mean())
+    print("mse", keras.backend.eval(mse).mean())
+
+
+def build_model(number_of_layers, number_of_units, activations):
+    model = Sequential()
+    for i in range(number_of_layers):
+        model.add(Dense(number_of_units[i], activation=activations[i]))
+    model.compile(optimizer='sgd', loss='mse', metrics=['mae'])
+    return model
+
+
 if __name__ == '__main__':
     os.chdir('../../..')  # going to the root of the project
 
@@ -27,7 +71,7 @@ if __name__ == '__main__':
 
     action = sys.argv[1]
     if action == 'train':
-        x_train, y_train = read_datasets("supplementary/data/training/")
+        x_train, y_train = read_datasets("supplementary/data/100-20-5/")
 
         number_of_features = x_train.columns.size
         number_of_outputs = y_train.columns.size
@@ -35,18 +79,15 @@ if __name__ == '__main__':
         number_of_units = [16, 32, 16, number_of_outputs]
         activations = ['relu', 'relu', 'relu', 'linear']
 
-        model = Sequential()
-        for i in range(number_of_layers):
-            model.add(Dense(number_of_units[i], activation=activations[i]))
+        if "-k" in sys.argv:
+            k_cross_fold_validation(x_train, number_of_outputs, number_of_layers, number_of_units, activations)
 
-        model.compile(optimizer='sgd', loss='mse', metrics=['mse', 'mae'])
-        model.fit(x_train.to_numpy(), y_train.to_numpy(), epochs=150)
-
-        if len(sys.argv) > 2 and sys.argv[2] == '--save':
-            model.save('supplementary/models/single/single_nn.h5')
+        else:
+            model = build_model(number_of_layers, number_of_units, activations)
+            model.fit(x_train.to_numpy(), y_train.to_numpy(), epochs=150)
+            evaluate(model)
+            if '--save' in sys.argv:
+                model.save('supplementary/models/single/single_nn.h5')
 
     elif action == 'evaluate':
-        model = load_model('supplementary/models/single/single_nn.h5')
-
-        x_test, y_test = read_datasets("target/data/")
-        print(model.evaluate(x_test.to_numpy(), y_test.to_numpy()))
+        evaluate(keras.models.load_model('supplementary/models/single/single_nn.h5'))

@@ -1,11 +1,11 @@
 import csv
 import json
+import os
 import random
+import subprocess
 
 import numpy as np
-import os
 import pandas as pd
-import subprocess
 import sys
 from aggregator import GlobalStateAggregator
 from env import Agent, Environment
@@ -209,6 +209,7 @@ def k_cross_fold_validation(train_input, train_output, k, n, agents, env):
                                                train_output[agent][upper:n]]) for agent in train_output}
 
         print("Fold " + str(i + 1))
+        env.compile()
         train_and_test(train_fold_input, train_fold_output, test_fold_input, test_fold_output, agents, env, group=True)
         preds = env.group_predict(test_fold_input, test_fold_output, get_aggregator(test_fold_input), int(n / k))
         predictions = np.concatenate((predictions, preds), axis=0)
@@ -230,7 +231,7 @@ if __name__ == '__main__':
     action = sys.argv[1]
     if action == 'train':
         env, agent_dict, train_input, train_output, eval_input, eval_output = setup_train_test(
-            'supplementary/simulation.json', 'supplementary/data/training/', 'supplementary/data/evaluation/')
+            'supplementary/simulation.json', 'supplementary/data/100-20-5/', 'supplementary/data/100-20-5/')
         agents = agent_dict.values()
 
         if "-k" in sys.argv:
