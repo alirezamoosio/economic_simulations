@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 
+import numpy as np
 import sys
 from bayes_opt import BayesianOptimization, UtilityFunction
 
@@ -103,6 +104,7 @@ if __name__ == '__main__':
     runCmd("sbt clean compile")
     for stepSize in stepSizes:
         runCmd('sbt "run generate {} {} {} {}"'.format(json_original, sampleSize, nSteps, stepSize))
+        targets = np.empty(shape=sampleSize)
         for entry in range(sampleSize):
             optimizer = BayesianOptimization(None, pbounds, 10)
             utility = UtilityFunction(kind="ei", kappa=2.5, xi=0.0)
@@ -115,8 +117,13 @@ if __name__ == '__main__':
 
             all_params.update(toJson(optimizer.max['params']))
             params_result["stepSize-{}".format(stepSize)]["entry-{}".format(entry)].update(all_params)
-            params_result["stepSize-{}".format(stepSize)]["entry-{}".format(entry)]["target"] = optimizer.max["target"]
+            targets[entry] = optimizer.max["target"]
+            params_result["stepSize-{}".format(stepSize)]["entry-{}".format(entry)]["target"] = targets[entry]
 
             f = open(json_result, "w")
             f.write(json.dumps(params_result))
             f.close()
+        params_result["stepSize-{}".format(stepSize)]["mean-target"] = targets.mean()
+        f = open(json_result, "w")
+        f.write(json.dumps(params_result))
+        f.close()
