@@ -82,7 +82,7 @@ object Main {
       case "evaluate" =>
         val stepSize = args(2).toInt
         val entry = args(3).toInt
-        val (matrix, header) = CsvManager.readCsvFile("supplementary/data/evaluation/global_stat_output.csv")
+        val (matrix, header) = CsvManager.readCsvFile("target/data/global_stat_output.csv")
         var actuals: Statistics = header.toArray.zip(matrix(entry, ::).inner.toArray).toMap
         var simResults: Statistics = simFunction(constants, variables, 1, stepSize, GLOBAL.allAgents).map(_._4).last
         actuals = Metrics.standardize(matrix, header, actuals)

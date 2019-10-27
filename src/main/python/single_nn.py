@@ -21,8 +21,8 @@ def read_datasets(dir):
     return x, y
 
 
-def evaluate(model):
-    x_test, y_test = read_datasets("supplementary/data/100-20-5/")
+def evaluate(model, eval_instance_name):
+    x_test, y_test = read_datasets("supplementary/data/" + eval_instance_name + "/")
     print(model.evaluate(x_test.to_numpy(), y_test.to_numpy()))
 
 
@@ -37,7 +37,7 @@ def k_cross_fold_validation(x_train, number_of_outputs, number_of_layers, number
 
     predictions = np.empty(shape=(0, number_of_outputs))
     fold_counter = 1
-    for train_index, test_index in KFold(k).split(x_train):
+    for train_index, test_index in KFold(k, shuffle=True, random_state=19).split(x_train):
         print("Fold", fold_counter)
         x_train_fold, x_test_fold = x_train[train_index], x_train[test_index]
         y_train_fold = x_train[train_index]
@@ -70,8 +70,10 @@ if __name__ == '__main__':
         raise Exception("action required!")
 
     action = sys.argv[1]
+    train_instance_name = "5000-40-5"
+    eval_instance_name = "500-5-5"
     if action == 'train':
-        x_train, y_train = read_datasets("supplementary/data/100-20-5/")
+        x_train, y_train = read_datasets("supplementary/data/" + train_instance_name + "/")
 
         number_of_features = x_train.columns.size
         number_of_outputs = y_train.columns.size
@@ -85,9 +87,10 @@ if __name__ == '__main__':
         else:
             model = build_model(number_of_layers, number_of_units, activations)
             model.fit(x_train.to_numpy(), y_train.to_numpy(), epochs=150)
-            evaluate(model)
+            evaluate(model, eval_instance_name)
             if '--save' in sys.argv:
-                model.save('supplementary/models/single/single_nn.h5')
+                model.save('supplementary/models/' + train_instance_name + '/single_nn.h5')
 
     elif action == 'evaluate':
-        evaluate(keras.models.load_model('supplementary/models/single/single_nn.h5'))
+        model = keras.models.load_model('supplementary/models/' + train_instance_name + '/single_nn.h5')
+        evaluate(model, eval_instance_name)

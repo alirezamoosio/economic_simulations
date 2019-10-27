@@ -129,7 +129,10 @@ def get_aggregator(input_data):
 
 def test_all(env, test_input, test_output, from_train_scale=False):
     env.solo_test(test_input, test_output, from_train_scale)
-    print("group test:", env.group_test(test_input, test_output, get_aggregator(test_input), from_train_scale))
+    loss, error = env.group_test(test_input, test_output, get_aggregator(test_input), from_train_scale)
+    print("group test")
+    print("loss", loss)
+    print("error", error)
 
 
 def learn_input(env, data_input, data_output, epochs=10 ** 5):
@@ -229,9 +232,12 @@ if __name__ == '__main__':
         raise Exception("action required")
 
     action = sys.argv[1]
+    train_instance_name = "5000-40-5"
+    eval_instance_name = "500-5-5"
     if action == 'train':
         env, agent_dict, train_input, train_output, eval_input, eval_output = setup_train_test(
-            'supplementary/simulation.json', 'supplementary/data/100-20-5/', 'supplementary/data/100-20-5/')
+            'supplementary/simulation.json', 'supplementary/data/' + train_instance_name + '/',
+            'supplementary/data/' + eval_instance_name + '/')
         agents = agent_dict.values()
 
         if "-k" in sys.argv:
@@ -245,7 +251,10 @@ if __name__ == '__main__':
         else:
             train_and_test(train_input, train_output, eval_input, eval_output, agents, env, '--group' in sys.argv)
             if '--save' in sys.argv:
-                env.save_models("supplementary/models/", train_input)
+                directory = "supplementary/models/" + train_instance_name + "/"
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+                env.save_models(directory, train_input)
 
     elif action == 'input-learning':
         def add_target(result_entry, stepSize=50):
@@ -268,16 +277,16 @@ if __name__ == '__main__':
                 runCmd('sbt "run generate supplementary/params/params.json {} {} {} all"'.format(sampleSize, nSteps,
                                                                                                  stepSize))
 
-                env, agent_dict, train_input, train_output = setup_train_test(
-                    'supplementary/simulation.json', 'target/data/', model_from_file='supplementary/models/')
+                env, agent_dict, train_input, train_output = setup_train_test('supplementary/simulation.json',
+                    'target/data/', model_from_file='supplementary/models/' + train_instance_name + '/')
                 result_entry = learn_input(env, train_input, train_output, epochs=10 ** 5)
                 result_json["stepSize-{}".format(stepSize)] = add_target(result_entry, stepSize)
                 f = open("supplementary/params/net-result.json", "w")
                 f.write(json.dumps(result_json))
                 f.close()
         else:
-            env, agent_dict, train_input, train_output = setup_train_test(
-                'supplementary/simulation.json', 'target/data/', model_from_file='supplementary/models/')
+            env, agent_dict, train_input, train_output = setup_train_test('supplementary/simulation.json',
+                'target/data/', model_from_file='supplementary/models/' + train_instance_name + '/')
             result_entry = learn_input(env, train_input, train_output, epochs=1000)
             result_entry = add_target(result_entry)
             f = open("supplementary/params/net-result.json", "w")
@@ -285,16 +294,17 @@ if __name__ == '__main__':
             f.close()
 
     elif action == 'evaluate':
-        env, agent_dict, test_input, test_output = setup_train_test(
-            'supplementary/simulation.json', 'supplementary/data/evaluation/', model_from_file='supplementary/models/')
+        env, agent_dict, test_input, test_output = setup_train_test('supplementary/simulation.json',
+                'supplementary/data/' + eval_instance_name + '/',
+                model_from_file='supplementary/models/' + train_instance_name + '/')
         test_all(env, test_input, test_output, True)
 
     elif action == 'batch-predict':
         if len(sys.argv) < 3:
             raise Exception("time required!")
-        env, agent_dict, train_input = setup_prediction('supplementary/simulation.json', 'supplementary/models/',
-                                                        'supplementary/data/evaluation',
-                                                        True)
+        env, agent_dict, train_input = setup_prediction('supplementary/simulation.json',
+                'supplementary/models/' + train_instance_name + '/',
+                'supplementary/data/' + eval_instance_name + '/', True)
         data = env.predict(train_input, int(sys.argv[2]))
 
         for agent in data:
@@ -304,8 +314,8 @@ if __name__ == '__main__':
     elif action == 'predict-over-time':
         if len(sys.argv) < 3:
             raise Exception("time required!")
-        env, agent_dict, data_vec = setup_prediction('supplementary/simulation.json', 'supplementary/models/',
-                                                     'supplementary/data/data_vec.json', False)
+        env, agent_dict, data_vec = setup_prediction('supplementary/simulation.json',
+                'supplementary/models/' + train_instance_name + '/', 'supplementary/data/data_vec.json', False)
         data = env.predict_over_time(data_vec, int(sys.argv[2]))
 
         for agent in data:
@@ -314,7 +324,7 @@ if __name__ == '__main__':
 
 
     elif action == 'correlation':
-        env, agent_dict = prepare_environment('supplementary/simulation.json', 'supplementary/models/')
+        env, agent_dict = prepare_environment('supplementary/simulation.json', 'supplementary/models/' + train_instance_name + '/')
 
         for agent_name in agent_dict:
             env.correlation_matrix(agent_dict[agent_name]).to_csv(f'supplementary/results/correlation/{agent_name}.csv')
@@ -322,7 +332,7 @@ if __name__ == '__main__':
     elif action == 'derivative':
         if len(sys.argv) < 4:
             raise Exception("both agent and parameter name required")
-        env, agent_dict = prepare_environment('supplementary/simulation.json', 'supplementary/models/')
+        env, agent_dict = prepare_environment('supplementary/simulation.json', 'supplementary/models/' + train_instance_name + '/')
 
         env.derivative_matrix(agent_dict[sys.argv[2]], sys.argv[3], 100).to_csv(
             f'supplementary/results/derivative/{sys.argv[2]}_{sys.argv[3]}.csv')

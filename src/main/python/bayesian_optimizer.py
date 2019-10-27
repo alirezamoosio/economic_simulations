@@ -105,7 +105,7 @@ if __name__ == '__main__':
         runCmd('sbt "run generate {} {} {} {}"'.format(json_original, sampleSize, nSteps, stepSize))
         for entry in range(sampleSize):
             optimizer = BayesianOptimization(None, pbounds, 10)
-            utility = UtilityFunction(kind="ucb", kappa=2.5, xi=0.0)
+            utility = UtilityFunction(kind="ei", kappa=2.5, xi=0.0)
             for i in range(optimization_iters):
                 print("stepSize:", stepSize, "entry:", entry, "iteration:", i)
                 next_point = optimizer.suggest(utility)

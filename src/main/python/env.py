@@ -287,8 +287,8 @@ class Environment:
         :param data_input: The general 'data' structure, refer to README.md
         :param data_output: A dictionary from agents to the ground truth value of their states
         :param aggregator: The aggregator used for producing the global statistics from agent states
-        :return: Loss value
-        :rtype: float
+        :return: Loss value, error value
+        :rtype: (float, float)
         """
         if self._non_compiled_changes:
             raise Exception('None Compiled Changes! Compile first!')
