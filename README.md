@@ -1,6 +1,11 @@
 # economic_simulations
 This fork contains the neural network and bayesian optimization implementations. The neural network is supposed to learn the behavior of the simulation, therefore be able to produce the simulation results much faster than the actual simulation. With its high speed compared to the actual simulation, it can be used to generate lots of outputs from different initial conditions. This data can later be used to analyze the correlation and possibly the causality between the agents. 
 
+## Dependencies
+1. sbt (for building and running the simulation)
+2. Numpy, Pandas, Keras, and Tensorflow (for training, testing, and using the neural networks)
+3. [fmfn / BayesianOptimization](https://github.com/fmfn/BayesianOptimization)
+
 ## Architecture and Hierarchy of the Network
 Here we use two abstraction levels to model the simulation.
 1. Environment Level: In the higher level of abstraction each type of agent from the simulation (e.g. Person, Farm, ...) is represented by an instance of the class Agent. From now on by agent, we mean an instance of the class Agent, in other words, an agent type from the simulation. An environment (instance of class Environment) keeps the information of all the agents in the world as well as the connections between them. A connection from agent A to agent B means that in the simulation agent B relies on information from agent A. **We also assume by default that each agent has a connection to itself.** These connections form a graph which is used in the lower level of abstraction.
