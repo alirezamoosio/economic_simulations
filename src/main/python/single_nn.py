@@ -1,12 +1,12 @@
 import os
 
-import keras
 import numpy as np
 import pandas as pd
 import sys
-from keras import Sequential
-from keras.layers import Dense
+import tensorflow as tf
 from sklearn.model_selection import KFold
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense
 
 
 def read_datasets(dir):
@@ -48,11 +48,11 @@ def k_cross_fold_validation(x_train, number_of_outputs, number_of_layers, number
         preds = model.predict(x_test_fold)
         predictions = np.concatenate((predictions, preds), axis=0)
         fold_counter += 1
-    mae = keras.metrics.mean_absolute_error(x_train, predictions)
-    mse = keras.metrics.mean_squared_error(x_train, predictions)
+    mae = tf.keras.metrics.mean_absolute_error(x_train, predictions)
+    mse = tf.keras.metrics.mean_squared_error(x_train, predictions)
     print("cross validation errors")
-    print("mae", keras.backend.eval(mae).mean())
-    print("mse", keras.backend.eval(mse).mean())
+    print("mae", tf.keras.backend.eval(mae).mean())
+    print("mse", tf.keras.backend.eval(mse).mean())
 
 
 def build_model(number_of_layers, number_of_units, activations):
@@ -92,5 +92,5 @@ if __name__ == '__main__':
                 model.save('supplementary/models/' + train_instance_name + '/single_nn.h5')
 
     elif action == 'evaluate':
-        model = keras.models.load_model('supplementary/models/' + train_instance_name + '/single_nn.h5')
+        model = tf.keras.models.load_model('supplementary/models/' + train_instance_name + '/single_nn.h5')
         evaluate(model, eval_instance_name)

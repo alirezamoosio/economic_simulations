@@ -1,6 +1,6 @@
 import tensorflow as tf
-from tensorflow.python.keras.layers import Dense, InputLayer
-from tensorflow.python.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Dense, InputLayer
+from tensorflow.keras.models import Sequential, load_model
 
 
 class Node:

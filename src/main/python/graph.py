@@ -142,7 +142,7 @@ class Graph:
                                          indices)
         return input_vars, predict_s
 
-    def learn_input(self, train_s, aggregator, epochs=100, learning_rate=100):
+    def learn_input(self, train_s, aggregator, epochs=100, learning_rate=0.01):
         """
         Learns back the input parameters
         :param train_s: target data contains global states

@@ -373,7 +373,7 @@ class Environment:
                                    epochs)
             print()
 
-    def learn_input(self, agent_output, aggregator, epochs=100, learning_rate=100):
+    def learn_input(self, agent_output, aggregator, epochs=100, learning_rate=0.01):
         """
         Learns back the inputs that produce the given output
         :param agent_output: contains per agent its output

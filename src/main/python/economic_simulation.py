@@ -135,16 +135,16 @@ def test_all(env, test_input, test_output, from_train_scale=False):
     print("error", error)
 
 
-def learn_input(env, data_input, data_output, epochs=10 ** 5):
+def learn_input(env, data_input, data_output, epochs=1000, learning_rate=0.01):
     """
     learns the input for given output
     :param data_input: contains for each agent constants and states
     :type data_input dict
     :param data_output: contains for each agent constants and states
     :type data_output dict
-    :return: the parameter obejects for all entries
+    :return: the parameter objects for all entries
     """
-    learned_input = env.learn_input(data_output, get_aggregator(data_input), epochs)
+    learned_input = env.learn_input(data_output, get_aggregator(data_input), epochs, learning_rate)
     result_json = {}
     for agent in learned_input:
         for (i, c_row), (j, s_row) in zip(learned_input[agent]["constants"].iterrows(),
@@ -291,7 +291,7 @@ if __name__ == '__main__':
 
                 env, agent_dict, train_input, train_output = setup_train_test('supplementary/simulation.json',
                     'target/data/', model_from_file='supplementary/models/' + train_instance_name + '/')
-                result_entry = learn_input(env, train_input, train_output, epochs=10 ** 5)
+                result_entry = learn_input(env, train_input, train_output, epochs=10 ** 5, learning_rate=0.02)
                 result_json["stepSize-{}".format(stepSize)] = add_target(result_entry, data_address, stepSize)
                 f = open("supplementary/params/net-result.json", "w")
                 f.write(json.dumps(result_json))
@@ -299,7 +299,7 @@ if __name__ == '__main__':
         else:
             env, agent_dict, train_input, train_output = setup_train_test('supplementary/simulation.json',
                 data_address, model_from_file='supplementary/models/' + train_instance_name + '/')
-            result_entry = learn_input(env, train_input, train_output, epochs=1000)
+            result_entry = learn_input(env, train_input, train_output, epochs=10 ** 5, learning_rate=0.02)
             result_entry = add_target(result_entry, data_address)
             f = open("supplementary/params/net-result.json", "w")
             f.write(json.dumps(result_entry))
