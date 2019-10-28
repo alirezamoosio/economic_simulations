@@ -225,6 +225,28 @@ def k_cross_fold_validation(train_input, train_output, k, n, agents, env):
     print("mse", mse)
 
 
+def add_target(result_entry, data_address, stepSize=50):
+    json_temp = "temp.json"
+    targets = np.empty(shape=len(result_entry))
+    with open(data_address + "Landlord_x.csv", "r") as f:
+        rows = list(csv.reader(f))
+        i = 0
+        for entry in result_entry:
+            result_entry[entry]["constants"]["Landlord"] = {
+                rows[0][j].split("_")[1]: float(rows[i + 1][j]) for j in [0, 1]
+            }
+            f = open(json_temp, "w")
+            f.write(json.dumps(result_entry[entry]))
+            f.close()
+            result = runCmd('sbt --warn "run evaluate temp.json {} {}"'.format(stepSize, entry.split("-")[1]))
+            result_entry[entry]["target"] = -float(result.decode("utf-8")[:-1])
+            targets[i] = result_entry[entry]["target"]
+
+            i += 1
+        result_entry["mean-target"] = targets.mean()
+        return result_entry
+
+
 if __name__ == '__main__':
     os.chdir('../../..')  # going to the root of the project
 
@@ -257,17 +279,6 @@ if __name__ == '__main__':
                 env.save_models(directory, train_input)
 
     elif action == 'input-learning':
-        def add_target(result_entry, stepSize=50):
-            json_temp = "temp.json"
-            for entry in result_entry:
-                f = open(json_temp, "w")
-                f.write(json.dumps(result_entry[entry]))
-                f.close()
-                result = runCmd('sbt --warn "run evaluate {} {} {}"'.format(json_temp, stepSize, entry.split("-")[1]))
-                result_entry[entry]["target"] = -float(result.decode("utf-8")[:-1])
-            return result_entry
-
-
         if "--generate" in sys.argv:
             result_json = {}
             for stepSize in [20, 50, 100]:
@@ -285,10 +296,11 @@ if __name__ == '__main__':
                 f.write(json.dumps(result_json))
                 f.close()
         else:
+            data_address = 'target/data/'
             env, agent_dict, train_input, train_output = setup_train_test('supplementary/simulation.json',
-                'target/data/', model_from_file='supplementary/models/' + train_instance_name + '/')
+                data_address, model_from_file='supplementary/models/' + train_instance_name + '/')
             result_entry = learn_input(env, train_input, train_output, epochs=1000)
-            result_entry = add_target(result_entry)
+            result_entry = add_target(result_entry, data_address)
             f = open("supplementary/params/net-result.json", "w")
             f.write(json.dumps(result_entry))
             f.close()
