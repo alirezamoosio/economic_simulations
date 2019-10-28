@@ -279,6 +279,7 @@ if __name__ == '__main__':
                 env.save_models(directory, train_input)
 
     elif action == 'input-learning':
+        data_address = 'target/data/'
         if "--generate" in sys.argv:
             result_json = {}
             for stepSize in [20, 50, 100]:
@@ -291,12 +292,11 @@ if __name__ == '__main__':
                 env, agent_dict, train_input, train_output = setup_train_test('supplementary/simulation.json',
                     'target/data/', model_from_file='supplementary/models/' + train_instance_name + '/')
                 result_entry = learn_input(env, train_input, train_output, epochs=10 ** 5)
-                result_json["stepSize-{}".format(stepSize)] = add_target(result_entry, stepSize)
+                result_json["stepSize-{}".format(stepSize)] = add_target(result_entry, data_address, stepSize)
                 f = open("supplementary/params/net-result.json", "w")
                 f.write(json.dumps(result_json))
                 f.close()
         else:
-            data_address = 'target/data/'
             env, agent_dict, train_input, train_output = setup_train_test('supplementary/simulation.json',
                 data_address, model_from_file='supplementary/models/' + train_instance_name + '/')
             result_entry = learn_input(env, train_input, train_output, epochs=1000)
