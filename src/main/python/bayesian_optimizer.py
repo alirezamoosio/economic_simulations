@@ -49,6 +49,9 @@ def runCmd(cmd):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        raise Exception("number of bo iterations required")
+
     os.chdir('../../..')  # going to the root of the project
     json_original = 'supplementary/params/params.json'
     json_optimize = "supplementary/params/optimize.json"
@@ -98,7 +101,7 @@ if __name__ == '__main__':
     stepSizes = [20, 50, 100]
     sampleSize = 5
     nSteps = 1
-    optimization_iters = 20
+    optimization_iters = int(sys.argv[1])
     params_result = {"stepSize-{}".format(stepSize): {"entry-{}".format(entry): {} for entry in range(sampleSize)} for stepSize in stepSizes}
 
     runCmd("sbt clean compile")
