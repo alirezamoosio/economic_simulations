@@ -129,10 +129,10 @@ def get_aggregator(input_data):
 
 def test_all(env, test_input, test_output, from_train_scale=False):
     env.solo_test(test_input, test_output, from_train_scale)
-    loss, error = env.group_test(test_input, test_output, get_aggregator(test_input), from_train_scale)
+    mae, mse = env.group_test(test_input, test_output, get_aggregator(test_input), from_train_scale)
     print("group test")
-    print("loss", loss)
-    print("error", error)
+    print("MAE", mae)
+    print("MSE", mse)
 
 
 def learn_input(env, data_input, data_output, epochs=1000, learning_rate=0.01):
@@ -184,7 +184,7 @@ def train_and_test(train_input, train_output, eval_input, eval_output, agents, e
         print("group training:")
         env.group_train(train_input, train_output, get_aggregator(train_input), epochs=100)
         print()
-    test_all(env, eval_input, eval_output)
+        test_all(env, eval_input, eval_output)
 
 
 def k_cross_fold_validation(train_input, train_output, k, n, agents, env):
@@ -218,7 +218,10 @@ def k_cross_fold_validation(train_input, train_output, k, n, agents, env):
         predictions = np.concatenate((predictions, preds), axis=0)
 
         lower += int(n / k)
-        upper += int(n / k)
+        if i == k - 2:
+        	upper = n
+        else:
+        	upper += int(n / k)
     mae, mse = env.group_error(train_input, train_output, pd.DataFrame(predictions, columns=global_columns), get_aggregator(train_input))
     print("cross validation errors")
     print("mae", mae)

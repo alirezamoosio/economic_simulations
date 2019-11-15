@@ -73,17 +73,17 @@ class Graph:
         :param test_x: The general node indexed and standardized 'data', refer to README.sd
         :param test_s: A DataFrame containing the ground truth for
         :param aggregator: The aggregator used for aggregating individual states and making global statistics
-        :return: Loss value, error value
+        :return: MAE value, MSE value
         :rtype: (float, float)
         """
         indices = {node: {name: i for i, name in enumerate(test_x[node]["states"].columns.values)} for node in test_x}
         predict_s = aggregator.aggregate({node: node.output_tensor() for node in self._nodes}, test_s.shape[0], indices)
-        loss = tf.losses.absolute_difference(tf.constant(test_s.to_numpy()), predict_s)
-        error = tf.losses.mean_squared_error(tf.constant(test_s.to_numpy()), predict_s)
-        loss_val, error_val = self._sess.run((loss, error), feed_dict={
+        mae = tf.losses.absolute_difference(tf.constant(test_s.to_numpy()), predict_s)
+        mse = tf.losses.mean_squared_error(tf.constant(test_s.to_numpy()), predict_s)
+        mae_val, mse_val = self._sess.run((mae, mse), feed_dict={
             node.input_tensor(): self._prepare_node_input(test_x, node) for node in self._nodes
         })
-        return loss_val, error_val
+        return mae_val, mse_val
 
     def _input_learning_model(self, aggregator, n_samples):
         """Creates the trainable input tensor and connects it to all the relevant models
