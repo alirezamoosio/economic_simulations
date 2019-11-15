@@ -138,9 +138,9 @@ The [eceonomic_simulation.py](https://github.com/alirezamoosio/economic_simulati
 is an example of how to prepare the simulation data and pass it to the environment. With this python script you can train, test, predict, learn back inputs and get the correlation or derivative matrices.
 ### Training
 ```bash 
-python3 economic_simulation.py train --group --save
+python3 economic_simulation.py train --group --save -k <number of folds>
 ```
-For the following command training, data must already be prepared in the `supplementary/data` directory. Add `--group` if you want to run the group training as well. Add `--save` if you want to save the models. The models will be saved in the `supplementary/models/` folder. Be sure to create this directory before using `--save`.
+For the following command training, data must already be prepared in the `supplementary/data` directory. Add `--group` if you want to run the group training as well. Add `--save` if you want to save the models. The models will be saved in the `supplementary/models/` folder. Be sure to create this directory before using `--save`. Also, if you wish to use cross-validation for evaluating the model on training data, you can use the optional `-k` flag along with the number of folds.
 
 ### Evaluation
 ```bash
@@ -176,3 +176,28 @@ The models must have the same structure as the evaluation. Correlation matrices 
 python3 economoic_simulation derivative agent-name param-name
 ```
 The models must have the same structure as evaluation. The result would be the derivative matrix for `param-name` state parameter of `agent-name` agent and will be written to the `supplementary/results/derivative` directory so make sure this directory exists before running the command.
+
+## Experiments
+### Datasets
+For creating datasets to train and test the network, we sample the simulation constants, run the simulation for some iterations and record the constants and state variables after a fixed number of simulation iterations (a step). After proceesing for a number of steps, we resample the constants and repeat. 
+
+We have generated 5 datasets this way. These datasets are present in `supplementary/data/` and are named with the pattern i-j-k, where i is the total number of samples (rows) in the dataset, j is the number of steps before each constant resampling, and k is the step size (number of simulation iterations per step).
+
+### Some experimental results with the Network
+The model already trained on the 5000-40-5 dataset is stored in `supplementary/models/5000-40-5`. If you want to retrain it yourself, you can run the following command:
+```bash
+python3 economic_simulation train --group -k 3
+```
+As you can see, the MAE of the global (aggregated) paramters is 0.08, while its average value on agents is 0.14. Therefore, our model has a better understanding of how the grouped statistics of the simulation behave, without knowing much in details about each agent. Also we can use the 500-5-5 dataset as the held out data to evaluate our performance with. Using the following command
+```bash
+python3 economic_simulation evaluate
+```
+you can see the MAE value on the testing dataset will be 0.15. In order to compare our model with a single neural network trying to learn the whole simulation without being costumized according the structure of the problem, we have also implemented a single feed forward neural network. You can train it on the same training dataset (5000-40-5) using
+```bash
+python3 single_nn.py train
+```
+The trained model will be stored (and is already stored) in `supplementary/models/5000-40-5/single_nn.h5`. Then you can test it using the same testing dataset (500-5-5) using
+```bash
+python3 single_nn.py evaluate
+```
+which will have an MAE of 0.29 on the testing set. This shows that our proposed network can perform much better by exploiting the already known structure of the simulation.
