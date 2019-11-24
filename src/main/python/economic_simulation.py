@@ -99,14 +99,19 @@ def setup_train_test(config_address, data_address, eval_address=None, model_from
     return env, agent_dict, train_input, train_output, eval_input, eval_output
 
 
-def setup_prediction(config_address, models_address, data_address, is_batch):
-    env, agent_dict = prepare_environment(config_address, models_address)
+def setup_prediction(config_address, data_address, models_address, is_batch, data_vec_address=None):
+    """
+    'data_adress' should be passed to this method in both "batch" and "over time" prediction.
+    In the second case, 'data_address' is needed because 'prepare_environment' method uses it
+    to figure out the state and constant parameters of each agent.
+    """
+    env, agent_dict = prepare_environment(config_address, data_address, models_address)
 
     if is_batch:
         input_address = {agent: data_address + agent.name + '_x.csv' for agent in agent_dict.values()}
         data = prepare_data(input_address, True)
     else:
-        with open(data_address, "r") as f:
+        with open(data_vec_address, "r") as f:
             jstring = f.read()
         data_vec_raw = json.loads(jstring)
 
@@ -282,7 +287,7 @@ if __name__ == '__main__':
                 env.save_models(directory, train_input)
 
     elif action == 'input-learning':
-        data_address = 'target/data/'
+        data_address = 'supplementary/data/' + eval_instance_name + '/'
         if "--generate" in sys.argv:
             result_json = {}
             for stepSize in [20, 50, 100]:
@@ -318,8 +323,8 @@ if __name__ == '__main__':
         if len(sys.argv) < 3:
             raise Exception("time required!")
         env, agent_dict, train_input = setup_prediction('supplementary/simulation.json',
-                'supplementary/models/' + train_instance_name + '/',
-                'supplementary/data/' + eval_instance_name + '/', True)
+        		'supplementary/data/' + eval_instance_name + '/', 
+        		'supplementary/models/' + train_instance_name + '/', True)
         data = env.predict(train_input, int(sys.argv[2]))
 
         for agent in data:
@@ -330,16 +335,19 @@ if __name__ == '__main__':
         if len(sys.argv) < 3:
             raise Exception("time required!")
         env, agent_dict, data_vec = setup_prediction('supplementary/simulation.json',
-                'supplementary/models/' + train_instance_name + '/', 'supplementary/data/data_vec.json', False)
+        		'supplementary/data/' + eval_instance_name + '/',
+                'supplementary/models/' + train_instance_name + '/', 
+                False, 'supplementary/data/data_vec.json')
         data = env.predict_over_time(data_vec, int(sys.argv[2]))
 
         for agent in data:
             total_data = data[agent]['constants'].join(data[agent]['states'])
-            total_data.to_csv(f'supplementary/results/{agent.name}.csv')
+            total_data.to_csv(f'supplementary/results/prediction-over-time/{agent.name}.csv')
 
 
     elif action == 'correlation':
-        env, agent_dict = prepare_environment('supplementary/simulation.json', 'supplementary/models/' + train_instance_name + '/')
+        env, agent_dict = prepare_environment('supplementary/simulation.json', 'supplementary/data/' + eval_instance_name + '/', 
+        	'supplementary/models/' + train_instance_name + '/')
 
         for agent_name in agent_dict:
             env.correlation_matrix(agent_dict[agent_name]).to_csv(f'supplementary/results/correlation/{agent_name}.csv')
@@ -347,7 +355,8 @@ if __name__ == '__main__':
     elif action == 'derivative':
         if len(sys.argv) < 4:
             raise Exception("both agent and parameter name required")
-        env, agent_dict = prepare_environment('supplementary/simulation.json', 'supplementary/models/' + train_instance_name + '/')
+        env, agent_dict = prepare_environment('supplementary/simulation.json', 'supplementary/data/' + eval_instance_name + '/',
+        	'supplementary/models/' + train_instance_name + '/')
 
         env.derivative_matrix(agent_dict[sys.argv[2]], sys.argv[3], 100).to_csv(
             f'supplementary/results/derivative/{sys.argv[2]}_{sys.argv[3]}.csv')
