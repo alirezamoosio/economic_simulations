@@ -1,9 +1,9 @@
-package bo
+package ml_supplements
 
 import java.nio.file.{Files, Paths}
 
 import Simulation.Simulation
-import bo.DatasetCreator.Data
+import ml_supplements.DatasetCreator.Data
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, linspace, normalize}
 import breeze.plot.{Figure, plot}
 

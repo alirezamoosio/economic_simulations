@@ -1,6 +1,6 @@
-package bo
+package ml_supplements
 
-import bo.DatasetCreator.Statistics
+import ml_supplements.DatasetCreator.Statistics
 import breeze.linalg.DenseMatrix
 import breeze.stats._
 
